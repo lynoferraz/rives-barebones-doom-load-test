@@ -19,8 +19,9 @@ RPC_URL = os.getenv("RPC_URL")
 MNEMONIC = os.getenv("MNEMONIC")
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 INPUTBOX_ADDRESS = os.getenv("INPUTBOX_ADDRESS")
-INPUTBOX_ABI_FILE = os.getenv("INPUTBOX_ABI_FILE")
 APP_ADDRESS = os.getenv("APP_ADDRESS")
+
+INPUTBOX_ABI_FILE = os.getenv("INPUTBOX_ABI_FILE") or 'InputBox.json'
 
 MIN_WAIT = int(os.getenv("MIN_WAIT") or 2)
 MAX_WAIT = int(os.getenv("MAX_WAIT") or 10)
