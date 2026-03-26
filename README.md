@@ -52,9 +52,19 @@ GAMEPLAY_PREFIX=<gameplay_name>
 Run
 
 ```shell
-ENV_FILE=.env locust --tags long --loglevel info --run-time 20m  --spawn-rate 0.016 --users 20
+ENV_FILE=.env locust --loglevel info --run-time 20m  --spawn-rate 0.016 --users 20 --tags medium
 ```
 
 This will start a local web server on `http://0.0.0.0:8089`. Follow the instructions and start the test
 
 Note: you can use the `--headless` option to start the test directly without the web server.
+
+### Start the Locust Inspect Tester
+
+To run the inspect probe test run (you will need the cartesi rollups node url):
+
+```shell
+ENV_FILE=.env locust -f locust_inspect.py --web-port 8090 --loglevel info --run-time 25m  --spawn-rate 0.5 --users 1 --tags medium
+```
+
+This will start a local web server on `http://0.0.0.0:8090`. Follow the instructions and start the test

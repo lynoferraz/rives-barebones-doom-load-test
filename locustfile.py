@@ -140,6 +140,7 @@ class W3Client:
         sender_balance = self.w3.eth.get_balance(self.account.address)
         if sender_balance < MIN_BALANCE:
             self.fund(BALANCE_TO_TRANSFER)
+            time.sleep(between(MIN_WAIT, MAX_WAIT)(0))
 
         latest_block = self.w3.eth.get_block("latest")
         base_fee_per_gas = latest_block.baseFeePerGas
@@ -230,7 +231,7 @@ def clients_refund(environment, **kwargs):
         client.refund()
 
 
-class MyUser(W3User):
+class GameplayUser(W3User):
     weight = 1 # in relation to other Users
 
     @tag('short')
