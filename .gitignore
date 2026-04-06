@@ -3,3 +3,4 @@ __pycache__
 *.rivlog
 *.outhash
 rivemu
+logs

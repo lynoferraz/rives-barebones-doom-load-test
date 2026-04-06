@@ -1,0 +1,46 @@
+x-env: &env-anvil
+  CARTESI_EPOCH_LENGTH: 10
+  CARTESI_BLOCKCHAIN_DEFAULT_BLOCK: "latest"
+  CARTESI_AUTH_KIND: private_key
+  CARTESI_BLOCKCHAIN_ID: 31337
+  CARTESI_AUTH_PRIVATE_KEY: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+  CARTESI_BLOCKCHAIN_WS_ENDPOINT: ws://devnet:8545
+  CARTESI_BLOCKCHAIN_HTTP_ENDPOINT: http://devnet:8545
+  CONSENSUS_ADDRESS: ${CONSENSUS_ADDRESS:-0x3e6e5b662a133bd5ff26b3e7989058a7c68ae6be}
+
+services:
+  deploy-app-1:
+    extends:
+      file: docker-compose.yaml
+      service: deployer
+    container_name: deploy-app-1
+    command: [
+        "bash",
+        "-c",
+        'echo ''{
+        "name":"rives-barebones-doom1",
+        "snapshot_url":"https://github.com/lynoferraz/rives-barebones-doom/releases/download/v0.0.4/rives-barebones-doom-snapshot.tar.gz",
+        "snapshot_sha256sum":"6f5b314ddd7b8ea10a20a6a321e29f26f6373ee6ae4e1c87487d84f26c7bbd34",
+        "salt":"0x0000000000000000000000000000000000000000000000000000000000000001"
+        }'' | deployer.sh -',
+      ]
+    environment:
+      <<: *env-anvil
+
+  deploy-app-2:
+    extends:
+      file: docker-compose.yaml
+      service: deployer
+    container_name: deploy-app-2
+    command: [
+        "bash",
+        "-c",
+        'echo ''{
+        "name":"rives-barebones-doom2",
+        "snapshot_url":"https://github.com/lynoferraz/rives-barebones-doom/releases/download/v0.0.4/rives-barebones-doom-snapshot.tar.gz",
+        "snapshot_sha256sum":"6f5b314ddd7b8ea10a20a6a321e29f26f6373ee6ae4e1c87487d84f26c7bbd34",
+        "salt":"0x0000000000000000000000000000000000000000000000000000000000000002"
+        }'' | deployer.sh -',
+      ]
+    environment:
+      <<: *env-anvil

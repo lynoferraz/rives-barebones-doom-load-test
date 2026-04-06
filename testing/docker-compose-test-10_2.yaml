@@ -1,0 +1,102 @@
+x-env: &env
+  RPC_URL: http://devnet:8545
+  NODE_URL: http://advancer:10012
+  PRIVATE_KEY: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+  INPUTBOX_ADDRESS: 0x1b51e2992A2755Ba4D6F7094032DF91991a0Cfac
+  INPUTBOX_ABI_FILE: "InputBox.json"
+  GAMEPLAY_PREFIX: gameplay-item
+
+services:
+  advancer:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4GiB
+
+  locust-image:
+    container_name: image
+    image: locust-tester:latest
+    build:
+      dockerfile_inline: |
+        # syntax=docker.io/docker/dockerfile:1
+        FROM locustio/locust:2.43.3
+        COPY requirements.txt /opt/install/requirements.txt
+        RUN /opt/venv/bin/pip install -r /opt/install/requirements.txt
+    command: echo ok
+    entrypoint: ""
+
+  load:
+    container_name: load
+    image: locust-tester:latest
+    pull_policy: never
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      locust-image:
+        condition: service_completed_successfully
+    networks:
+      - default
+    working_dir: /mnt/test
+    volumes:
+      - .:/mnt/test
+    environment:
+      <<: *env
+      APP_ADDRESS: 0xd10779D0a7D49C24921FC8885ac5Cc2D8Bb9c19F
+      MNEMONIC: REDACTED
+    ports:
+      - "8089:8089"
+    command: --loglevel info --run-time 20m  --spawn-rate 0.016 --users 18 --tags long --autostart --csv /mnt/test/logs/10_2_load
+
+  starve:
+    container_name: starve
+    image: locust-tester:latest
+    pull_policy: never
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      locust-image:
+        condition: service_completed_successfully
+    networks:
+      - default
+    working_dir: /mnt/test
+    volumes:
+      - .:/mnt/test
+    environment:
+      <<: *env
+      APP_ADDRESS: 0x8050DC376048c9CB319391f3864be3DC4c621589
+      MNEMONIC: REDACTED
+      MIN_WAIT: 28
+      MAX_WAIT: 32
+    ports:
+      - "8090:8089"
+    command: --loglevel info --run-time 20m  --spawn-rate 1 --users 1 --tags short --autostart --csv /mnt/test/logs/10_2_starve
+
+  probe:
+    container_name: probe
+    image: locust-tester:latest
+    pull_policy: never
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      locust-image:
+        condition: service_completed_successfully
+    networks:
+      - default
+    working_dir: /mnt/test
+    volumes:
+      - .:/mnt/test
+    environment:
+      <<: *env
+      APP_ADDRESS: 0x8050DC376048c9CB319391f3864be3DC4c621589
+      MIN_WAIT: 28
+      MAX_WAIT: 32
+    ports:
+      - "8091:8089"
+    command: --loglevel info -f locustfile_inspect.py --run-time 25m --host http://advancer:10012 --spawn-rate 1 --users 1 --tags empty --autostart --csv /mnt/test/logs/10_2_probe
