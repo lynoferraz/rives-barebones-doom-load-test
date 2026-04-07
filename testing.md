@@ -15,6 +15,14 @@ Set the alias
 alias node-compose="docker compose -f docker-compose.yaml -f docker-compose-devnet.yaml -f docker-compose-load-test.yaml"
 ```
 
+Create env files to be used with the load tester
+
+```shell
+MNEMONIC=<mnemonic to create accounts to send inputs>
+PRIVATE_KEY=<key of the account to fund inputs>
+APP_ADDRESS=<address of the deployed app>
+```
+
 ## Testing
 
 ### Test 10.2 Starvation

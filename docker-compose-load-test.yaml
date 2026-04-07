@@ -14,6 +14,13 @@ services:
       file: docker-compose.yaml
       service: deployer
     container_name: deploy-app-1
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      devnet:
+        condition: service_healthy
     command: [
         "bash",
         "-c",
@@ -32,6 +39,13 @@ services:
       file: docker-compose.yaml
       service: deployer
     container_name: deploy-app-2
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      devnet:
+        condition: service_healthy
     command: [
         "bash",
         "-c",

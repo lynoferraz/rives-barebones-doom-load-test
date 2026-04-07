@@ -1,0 +1,61 @@
+x-env: &env
+  RPC_URL: http://devnet:8545
+  NODE_URL: http://advancer:10012
+  INPUTBOX_ADDRESS: 0x1b51e2992A2755Ba4D6F7094032DF91991a0Cfac
+  INPUTBOX_ABI_FILE: "InputBox.json"
+  GAMEPLAY_PREFIX: gameplay-items
+
+services:
+  locust-image:
+    container_name: image
+    image: locust-tester:latest
+    build:
+      dockerfile_inline: |
+        # syntax=docker.io/docker/dockerfile:1
+        FROM locustio/locust:2.43.3
+        COPY requirements.txt /opt/install/requirements.txt
+        RUN /opt/venv/bin/pip install -r /opt/install/requirements.txt
+    command: echo ok
+    entrypoint: ""
+
+  load:
+    container_name: load
+    image: locust-tester:latest
+    pull_policy: never
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      locust-image:
+        condition: service_completed_successfully
+    networks:
+      - default
+    working_dir: /mnt/test
+    volumes:
+      - .:/mnt/test
+    secrets:
+      - env1
+    environment:
+      <<: *env
+      ENV_FILE: /run/secrets/env1
+    ports:
+      - "8089:8089"
+    command: --loglevel info --run-time 5m --spawn-rate 0.02 --users 5 --tags medium --autostart --csv /mnt/test/logs/9_1_load
+
+  deploy-app-1:
+    command: [
+        "bash",
+        "-c",
+        'echo ''{
+        "name":"rives-barebones-doom1",
+        "snapshot_url":"https://github.com/lynoferraz/rives-barebones-doom/releases/download/v0.0.4/rives-barebones-doom-snapshot.tar.gz",
+        "snapshot_sha256sum":"6f5b314ddd7b8ea10a20a6a321e29f26f6373ee6ae4e1c87487d84f26c7bbd34",
+        "salt":"0x0000000000000000000000000000000000000000000000000000000000000001",
+        "snapshot_policy":"EVERY_INPUT"
+        }'' | deployer.sh -',
+      ]
+
+secrets:
+  env1:
+    file: .env.1

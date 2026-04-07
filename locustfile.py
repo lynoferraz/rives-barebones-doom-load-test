@@ -182,7 +182,8 @@ class DAClient(W3Client):
     def send_gameplay(self, gameplay_name):
         payload = '0x'
         with open(f"{gameplay_name}.outhash",'r') as file:
-            payload += file.read()
+            gameplay_hash = file.read()
+            payload += gameplay_hash
         with open(f"{gameplay_name}.rivlog",'rb') as file:
             gameplay_bytes = file.read()
             payload += gameplay_bytes.hex()
@@ -237,17 +238,17 @@ class GameplayUser(W3User):
     @tag('short')
     @task
     def send_short_gameplay(self):
-        self.client.send_gameplay('gameplay-short')
+        self.client.send_gameplay(SHORT_GAMEPLAY_NAME)
 
     @tag('medium')
     @task
     def send_medium_gameplay(self):
-        self.client.send_gameplay('gameplay-medium')
+        self.client.send_gameplay(MEDIUM_GAMEPLAY_NAME)
 
     @tag('long')
     @task
     def send_long_gameplay(self):
-        self.client.send_gameplay('gameplay-long')
+        self.client.send_gameplay(LONG_GAMEPLAY_NAME)
 
     wait_time = between(MIN_WAIT, MAX_WAIT)
     # def wait_time(self):
